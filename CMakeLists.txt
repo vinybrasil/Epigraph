@@ -23,6 +23,14 @@ target_sources(epigraph PRIVATE
 # Note that enabling certain solvers automatically alters the license.
 # Set ENABLE_OSQP to TRUE to enable OSQP solver support. Apache-2.0 License.
 # Set ENABLE_ECOS to TRUE to enable ECOS solver support. GPLv3 License.
+
+set(ENABLE_OSQP TRUE)
+set(ENABLE_ECOS TRUE)
+
+include_directories(epigraph my_library)
+add_executable(teste_final my_library/teste_final.cpp)
+target_link_libraries(teste_final epigraph)
+
 find_package(Git QUIET)
 
 if(NOT ENABLE_OSQP AND NOT ENABLE_ECOS)

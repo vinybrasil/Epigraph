@@ -175,3 +175,6 @@ With the following expressions:
 | `Affine` | `p1 * x1 + p2 * x2 + ... + c` |
 | `Norm2` | `(Affine1^2  + Affine2^2 + ...)^(1/2)` |
 | `QuadForm` | ``x' * P * x`` where `P` is Hermitian |
+
+
+cmake --build build --config Deb -- -j$(nproc) && ./build/teste_final 

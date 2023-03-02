@@ -39,7 +39,7 @@ TEST_CASE("Portfolio SOCP")
 
     socp.addConstraint(greaterThan(x, 0.));
     socp.addConstraint(equalTo(x.sum(), 1.));
-    socp.addConstraint(lessThan((par(D.cwiseSqrt()).cwiseProduct(x)).norm(), u));
+    socp.addConstraint(lessThan( (par(D.cwiseSqrt()).cwiseProduct(x)).norm(),  u));
     socp.addConstraint(lessThan((par(F).transpose() * x).norm(), v));
     VectorX lhs1(2);
     lhs1 << 1. - t, 2. * u;
