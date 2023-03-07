@@ -31,6 +31,13 @@ include_directories(epigraph my_library)
 add_executable(teste_final my_library/teste_final.cpp)
 target_link_libraries(teste_final epigraph)
 
+
+include_directories(epigraph my_library_2)
+add_executable(teste_matrizes my_library_2/teste_matrizes.cpp)
+target_link_libraries(teste_matrizes epigraph)
+
+
+
 find_package(Git QUIET)
 
 if(NOT ENABLE_OSQP AND NOT ENABLE_ECOS)

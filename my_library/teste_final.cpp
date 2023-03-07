@@ -39,11 +39,18 @@ int main()
     //std::cout << "chegou";
     OptimizationProblem qp;
 
+    double inve = Y.transpose() * K.sqrt().inverse() * Y;
 
     VectorX a = qp.addVariable("a", m);
     VectorX u = qp.addVariable("u", n_0 * m);
     Scalar t = qp.addVariable("t");
 
+    // VectorX x = qp.addVariable("x", n_0 * m + m);
+
+    
+    // Eigen::ArrayXXf::Zero(n_0 * m + m, n_0 * m + m) K_pad;
+    // K_pad.topRightCorner(n_0 * m ,n_0 * m) = K;
+    //Eigen::ArrayXXf::Zero(m, 4)
     //qp.addConstraint(greaterThan(x, -1.));
 
     //qp.addConstraint(lessThan(x, 2.));
@@ -109,9 +116,9 @@ int main()
     //qp.addConstraint(lessThan(u.reshaped(2, 5).transpose().rowwise().norm() - a, par(g)));
     //qp.addConstraint(lessThan(u.reshaped(2, 5).transpose().rowwise().norm(), a ));
 
-    qp.addConstraint(box(par(g), a, par(C) ));
-    qp.addConstraint( equalTo(u.reshaped(2, 5).rowwise().sum(), par(g)));
-    qp.addConstraint( lessThan(u.reshaped(2, 5).transpose().rowwise().norm(), a ));
+    // qp.addConstraint( box(par(g), a, par(C) ));
+    // qp.addConstraint( equalTo(u.reshaped(2, 5).rowwise().sum(), par(g)));
+    // qp.addConstraint( lessThan(u.reshaped(2, 5).transpose().rowwise().norm(), a ));
 
 
     //qp.addCostTerm( u.transpose() * par(gamma * K ) * u - par(Y).dot(u) + par(epsilon) * a.sum());
@@ -119,11 +126,37 @@ int main()
     //qp.addConstraint( lessThan(  u.transpose() * par(gamma * K ) * u - par(Y).dot(u) + par(epsilon) * a.sum(), t) );
     // u.transpose() * par(gamma * K ) * u
 
-    qp.addConstraint( lessThan( - par(Y).dot(u) + par(epsilon) * a.sum(), t)); 
+    //qp.addConstraint( lessThan( - par(Y).dot(u) + par(epsilon) * a.sum(), t)); 
+
+
     //qp.addConstraint( lessThan( (K) * u).norm(), 2 )); 
     //qp.addConstraint( lessThan( (par(K.sqrt()) * u - par(K.sqrt() * Y) ).norm() + par(epsilon) * a.sum(), t ));
-    qp.addConstraint( lessThan( (par((gamma * K).sqrt()) * u - par((gamma * K).sqrt() * Y) ).norm() + par(epsilon) * a.sum(), t ));
+    //qp.addConstraint( lessThan( (par((gamma * K).sqrt()) * u - par((gamma * K).sqrt() * Y) ).norm() + par(epsilon) * a.sum(), t ));
 
+    //qp.addConstraint( lessThan( (par((gamma * K).sqrt()) * u - par((gamma * K).sqrt() * Y) ).norm()  + (u.transpose() * par(Y)) - par(Y.dot(Y))  + par(epsilon) * a.sum(), t ));
+
+    //qp.addConstraint( lessThan(  (par((gamma * K).sqrt()) * u - par((gamma * K).sqrt() * Y) ).norm(), t + (u.transpose() * par(Y)) + par(inve) - par(epsilon) * a.sum()   ) );
+
+    //qp.addConstraint( lessThan(  (par((gamma * K).sqrt()) * u - par((gamma * K).sqrt() * Y) ).norm() + par(epsilon) * a.sum() - (u.transpose() * par(Y)) + par(inve) , t ));
+    
+    //qp.addConstraint( lessThan(  (par((gamma * K).sqrt()) * u - par((gamma * K).sqrt() * Y) ).norm() , t ));
+
+    //a.head(3)
+    qp.addConstraint( box(par(g), a, par(C) ));
+    qp.addConstraint( equalTo(u.reshaped(2, 5).rowwise().sum(), par(g)));
+    qp.addConstraint( lessThan(u.reshaped(2, 5).transpose().rowwise().norm(), a ));
+    // qp.addConstraint( equalTo(par((gamma * K).sqrt()) * u - par((gamma * K).sqrt() * Y ), u));
+    // qp.addConstraint( equalTo( par(epsilon) * a.sum() - (u.transpose() * par(Y)) + par(inve), t));
+    // qp.addConstraint( lessThan( u.norm(), t));
+
+    // //qp.addConstraint( lessThan(  par(epsilon) * a.sum() , -t));
+    // qp.addCostTerm(t);
+
+    //qp.addCostTerm( u.transpose() * par(gamma * K ) * u - par(Y).dot(u) + par(epsilon) * a.sum());
+
+    //qp.addCostTerm( u.transpose() * par(gamma * K ) * u - par(Y).dot(u) + par(epsilon) * a.sum());
+    //qp.addConstraint( lessThan(u.transpose() * par(gamma * K ) * u - par(Y).dot(u) + par(epsilon) * a.sum(), t));
+    qp.addConstraint( lessThan(  (par((gamma * K).sqrt()) * u - par((gamma * K).sqrt() * Y) ).norm() , t ));
     qp.addCostTerm(t);
     std::cout << qp << "\n";
 
@@ -184,7 +217,7 @@ int main()
     std::cout << "u_reshaped:\n" << eval(u.reshaped(2, 5).transpose().rowwise().norm() ) <<  std::endl;
 
     std::cout << "u_reshaped - alpha:\n" << eval(u.reshaped(2, 5).transpose().rowwise().norm() - a ) <<  std::endl;
-    std::cout << "u_reshaped - alpha:\n" << eval(u.reshaped(2, 5).transpose().rowwise().norm() ) <<  std::endl;
+    std::cout << "u_reshaped rowise norm:\n" << eval(u.reshaped(2, 5).transpose().rowwise().norm() ) <<  std::endl;
     std::cout << "k^{1/2}:\n" << K.sqrt() <<  std::endl;
     //std::cout << "k^{1/2} * u :\n" << u.transpose() * K.sqrt()  <<  std::endl;
     //std::cout << "|| k^{1/2} * u || :\n" << (K.sqrt() * u).norm() <<  std::endl;
@@ -204,7 +237,17 @@ int main()
     std::cout << "The square of the last matrix is x:\n" << A.sqrt() * x << "\n";
 
     std::cout << "The square of the last matrix is x:\n" << (K.sqrt() * u_sol).norm() << "\n";
-    std::cout << "Objective funcion is:\n" << (K.sqrt() * u_sol).norm()  + epsilon * a_sol.sum() << "\n";
+    //(par((gamma * K).sqrt()) * u - par((gamma * K).sqrt() * Y) ).norm() + par(epsilon) * a.sum()
+
+    //é um problema equivalente, não tem o mesmo valor numérico                  
+    std::cout << "Objective funcion is:\n" <<  pow( (((gamma * K).sqrt() * u_sol)  - ((gamma * K).sqrt() * Y) ).norm() , 2) + ( u_sol.transpose() * Y) - (Y.transpose() * Y) + epsilon * a_sol.sum() << "\n";
+
+
+    std::cout << "Objective funcion is:\n" << pow( ((gamma * K).sqrt() * u_sol - (gamma * K).sqrt() * Y).norm(), 2) -  (u_sol.transpose() * Y) - inve + epsilon * a_sol.sum()  << "\n";
+
+    std::cout << "Objective funcion is:\n" <<  u_sol.transpose() * gamma * K  * u_sol - Y.dot(u_sol) + epsilon * a_sol.sum() << "\n";
+
+    std::cout << "Objective funcion is:\n" <<  Y.transpose() * K.sqrt().inverse() * Y << "\n";
    // std::cout << "||k^{1/2} * u ||:\n" << eval(K.sqrt()) <<  std::endl;
     //std::cout << "less than zero:\n" << eval(u(2) ) <<  std::endl;
 }
