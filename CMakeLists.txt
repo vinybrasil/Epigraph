@@ -36,7 +36,13 @@ include_directories(epigraph my_library_2)
 add_executable(teste_matrizes my_library_2/teste_matrizes.cpp)
 target_link_libraries(teste_matrizes epigraph)
 
+include_directories(epigraph my_library_3)
+add_executable(separate_functions my_library_3/separate_functions.cpp)
+target_link_libraries(separate_functions epigraph)
 
+include_directories(epigraph my_library_4)
+add_executable(teste_b my_library_4/teste_b.cpp)
+target_link_libraries(teste_b epigraph)
 
 find_package(Git QUIET)
 

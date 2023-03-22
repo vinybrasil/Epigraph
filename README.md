@@ -178,3 +178,5 @@ With the following expressions:
 
 
 cmake --build build --config Deb -- -j$(nproc) && ./build/teste_final 
+cmake --build build --config Deb -- -j$(nproc) && ./build/teste_matrizes
+cmake --build build --config Deb -- -j$(nproc) && ./build/separate_functions

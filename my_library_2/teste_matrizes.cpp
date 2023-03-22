@@ -18,7 +18,7 @@ int main()
     double gamma = 0.5;
     double g = 0.;
     double l = 1.3;
-    double C = 10.;
+    double C = 1.;
     double epsilon = 0.01;
 
     Eigen::VectorXd Y(n_0 * m);
@@ -39,10 +39,10 @@ int main()
     //std::cout << "chegou";
     OptimizationProblem qp;
 
-    double inve = Y.transpose() * K.sqrt().inverse() * Y;
+    //double inve = Y.transpose() * K.sqrt().inverse() * Y;
 
-    VectorX a = qp.addVariable("a", m);
-    VectorX u = qp.addVariable("u", n_0 * m);
+    //VectorX a = qp.addVariable("a", m);
+    //VectorX u = qp.addVariable("u", n_0 * m);
     Scalar t = qp.addVariable("t");
 
     //Eigen::ArrayXXf K_pad = Eigen::ArrayXXf::Zero(n_0 * m + m, n_0 * m + m);
@@ -67,11 +67,8 @@ int main()
     VectorX x = qp.addVariable("x", n_0 * m + m);
 
     qp.addConstraint( box(par(g), x.tail(m), par(C) ));
-
-    qp.addConstraint( equalTo(x.head(m*n_0).reshaped(2, 5).rowwise().sum(), par(g)));
-    qp.addConstraint( lessThan(x.head(m*n_0).reshaped(2, 5).transpose().rowwise().norm(), x.tail(m) ));
-
-    //qp.addConstraint( lessThan(  (par((gamma * K).sqrt()) * x - par((gamma * K).sqrt() * Y) ).norm() , t ));
+    qp.addConstraint( equalTo(x.head(m*n_0).reshaped(n_0, m).rowwise().sum(), par(g)));
+    qp.addConstraint( lessThan(x.head(m*n_0).reshaped(n_0, m).transpose().rowwise().norm(), x.tail(m) ));
     qp.addConstraint( lessThan(  (par((K_pad).sqrt()) * x + par(gamma * (K_pad.sqrt().inverse()) * q)).norm() , t ));
     qp.addCostTerm(t);
     std::cout << qp << "\n";
@@ -96,6 +93,21 @@ int main()
     std::cout << "X:\n" << eval(x_sol) << std::endl;
 
     std::cout << "Objective funcion is:\n" <<  x_sol.head(m*n_0).transpose() * gamma * K  * x_sol.head(m*n_0) - Y.dot(x_sol.head(m*n_0)) + epsilon * x_sol.tail(m).sum() << "\n";
+
+    // std::cout <<  "norm equal to zero:\n" << eval(x_sol.head(m*n_0).reshaped(5, 2).rowwise().sum()) << std::endl;
+    // std::cout << "Alpha:\n" << x_sol.tail(m) <<  std::endl;
+    // std::cout << "less than zero:\n" << eval(x_sol.head(m*n_0).reshaped(5, 2).rowwise().norm() - x_sol.tail(m)) <<  std::endl;
+
+
+    std::cout << "Solution:\n" << eval(x_sol) << std::endl;
+    std::cout <<  "u_reshaped:\n" << eval(x_sol.head(m*n_0).reshaped(m, n_0)) << std::endl;
+    //std::cout <<  "u_reshaped:\n" << eval(u.reshaped(5, 2).rowwise().norm() - a) << std::endl;
+    //std::cout <<  "norm:\n" << eval(u.reshaped(5, 2)(0)) << std::endl;
+    std::cout <<  "norm equal to zero:\n" << eval(x_sol.head(m*n_0).reshaped(n_0, m).rowwise().sum()) << std::endl;
+    std::cout << "Alpha:\n" << x_sol.tail(m) <<  std::endl;
+    std::cout << "u_reshaped - alpha:\n" << eval(x_sol.head(m*n_0).reshaped(n_0, m).transpose().rowwise().norm() - x_sol.tail(m) ) <<  std::endl;
+    std::cout << "u_reshaped rowise norm:\n" << eval(x_sol.head(m*n_0).reshaped(n_0, m).transpose().rowwise().norm() ) <<  std::endl;
+
 }
     // // VectorX x = qp.addVariable("x", n_0 * m + m);
 
